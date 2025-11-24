@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter Dashboard</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(120deg, #6e8efb, #a777e3); color: #fff; min-height: 100vh; padding: 20px; }
+        .page-container { max-width: 1000px; margin: auto; background: rgba(255,255,255,0.1); border-radius: 15px; backdrop-filter: blur(10px); }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: rgba(0,0,0,0.1); }
+        .content-section { padding: 30px; }
+        .content-section.hidden { display: none; }
+        #elections-list, #candidates-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: rgba(0,0,0,0.2); padding: 25px; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+        .card:hover { background: rgba(0,0,0,0.3); transform: translateY(-5px); }
+        .card h3 { margin-bottom: 5px; }
+        .card p { color: #ddd; font-size: 0.9rem; } /* Style for the party name */
+        .vote-btn { background: #fff; color: #6e8efb; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; margin-top: 15px; font-weight: 600; }
+        .back-btn { background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; }
+        #message { text-align: center; padding: 12px; margin: 20px; border-radius: 8px; display: none; }
+        #message.success { display: block; background: #2ecc71; }
+        #message.error { display: block; background: #e74c3c; }
+    </style>
+</head>
+<body>
+<div class="page-container">
+    <header>
+        <h1><i class="fas fa-vote-yea"></i> Voter Dashboard</h1>
+        <div><span id="username-display"></span> <button onclick="logout()">Logout</button></div>
+    </header>
+
+    <div id="elections-container" class="content-section">
+        <h2><i class="fas fa-poll"></i> Active Elections</h2>
+        <div id="elections-list"></div>
+    </div>
+
+    <div id="candidates-container" class="content-section hidden">
+        <button onclick="backToElections()" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Elections</button>
+        <h2 id="election-title"></h2>
+        <div id="candidates-list"></div>
+    </div>
+    <div id="message"></div>
+</div>
+
+<script>
+    const API_URL = "http://localhost:8080/api";
+    let currentUser = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const userData = localStorage.getItem("ov_user");
+        if (!userData) { window.location.href = "index.html"; return; }
+        currentUser = JSON.parse(userData);
+        document.getElementById("username-display").textContent = currentUser.username;
+        loadElections();
+    });
+
+    async function loadElections() {
+        const listEl = document.getElementById("elections-list");
+        listEl.innerHTML = "<p>Loading...</p>";
+        try {
+            const response = await fetch(`${API_URL}/elections/active`);
+            if (!response.ok) throw new Error('Failed to load elections.');
+            const elections = await response.json();
+            listEl.innerHTML = "";
+            if (elections.length === 0) { listEl.innerHTML = "<p>No active elections at the moment.</p>"; return; }
+            elections.forEach(election => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.onclick = () => viewCandidates(election.id, election.name);
+                card.innerHTML = `<h3>${election.name}</h3>`;
+                listEl.appendChild(card);
+            });
+        } catch(e) { listEl.innerHTML = `<p>Error: ${e.message}</p>`; }
+    }
+
+    async function viewCandidates(electionId, electionName) {
+        document.getElementById('elections-container').classList.add('hidden');
+        document.getElementById('candidates-container').classList.remove('hidden');
+        document.getElementById('election-title').textContent = electionName;
+        const listEl = document.getElementById("candidates-list");
+        listEl.innerHTML = "<p>Loading candidates...</p>";
+        try {
+            const response = await fetch(`${API_URL}/elections/${electionId}/candidates`);
+            if (!response.ok) throw new Error('Failed to load candidates for this election.');
+            const candidates = await response.json();
+            listEl.innerHTML = "";
+            if (candidates.length === 0) { listEl.innerHTML = "<p>No candidates have been added to this election yet.</p>"; return; }
+
+            candidates.forEach(candidate => {
+                const card = document.createElement("div");
+                card.className = "card";
+
+                /**
+                 * THIS IS THE FIX.
+                 * This template now correctly includes the candidate's party name.
+                 * The previous versions were missing this line completely.
+                 */
+                card.innerHTML = `
+                    <h3>${candidate.name}</h3>
+                    <p>Party: ${candidate.party.partyName}</p>
+                    <button class="vote-btn" onclick="castVote(${candidate.id})">Vote</button>
+                `;
+                listEl.appendChild(card);
+            });
+        } catch(e) { listEl.innerHTML = `<p>Error: ${e.message}</p>`; }
+    }
+
+    async function castVote(candidateId) {
+        if (!confirm("Are you sure you want to cast this vote? This cannot be undone.")) return;
+        try {
+            const response = await fetch(`${API_URL}/vote`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: currentUser.id, candidateId })
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.message);
+            showMessage("✅ Vote cast successfully! Thank you for participating.", 'success');
+            setTimeout(backToElections, 2000);
+        } catch (error) {
+            showMessage(`🚫 Error: ${error.message}`, 'error');
+        }
+    }
+
+    function backToElections() {
+        document.getElementById('candidates-container').classList.add('hidden');
+        document.getElementById('elections-container').classList.remove('hidden');
+        loadElections();
+    }
+
+    function showMessage(text, type) {
+        const msgEl = document.getElementById('message');
+        msgEl.textContent = text;
+        msgEl.className = type;
+        msgEl.style.display = 'block';
+        setTimeout(() => msgEl.style.display = 'none', 4000);
+    }
+
+    function logout() {
+      localStorage.removeItem("ov_user");
+      window.location.href = "index.html";
+    }
+</script>
+</body>
+</html>

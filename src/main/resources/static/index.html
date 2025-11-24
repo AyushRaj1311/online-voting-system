@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online Voting System - Welcome</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html,body { height: 100%; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(120deg, #6e8efb 0%, #a777e3 60%);
+        }
+
+        /* Decorative animated background images / blobs */
+        .bg-layer {
+            position: absolute; inset: 0; z-index: -3; pointer-events: none;
+        }
+        .bg-image {
+            position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%; filter: blur(60px) saturate(120%);
+            opacity: 0.25; transform: translate(-10%, -20%);
+            animation: floatSlow 12s ease-in-out infinite;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), rgba(110,142,251,0.08) 30%, rgba(167,119,227,0.02) 60%);
+        }
+        .bg-image.right { right: -10vmax; top: -15vmax; transform: translate(10%, -10%); animation-duration: 18s; }
+        .bg-image.left { left: -8vmax; bottom: -18vmax; animation-duration: 14s; }
+
+        @keyframes floatSlow {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); }
+            50% { transform: translateY(-6%) translateX(4%) rotate(8deg); }
+            100% { transform: translateY(0) translateX(0) rotate(0deg); }
+        }
+
+        /* subtle particle dots */
+        .particles { position: absolute; inset: 0; z-index: -2; opacity: 0.12; }
+        .particles svg { width: 100%; height: 100%; }
+
+        .page-container {
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            backdrop-filter: blur(12px) saturate(120%);
+            border-radius: 18px;
+            padding: 36px 26px;
+            box-shadow: 0 12px 50px rgba(0,0,0,0.35);
+            width: 100%; max-width: 480px; position: relative; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .brand-badge { position: absolute; top: 18px; left: 18px; font-weight: 700; font-size: 0.9rem; color: rgba(255,255,255,0.9); }
+
+        .form-container { position: relative; }
+        .form { transition: opacity 0.55s cubic-bezier(.2,.9,.2,1), transform 0.55s cubic-bezier(.2,.9,.2,1); }
+        .form.hidden { position: absolute; opacity: 0; transform: translateX(10%); pointer-events: none; }
+
+        h1 { font-size: 1.8rem; text-align: center; margin-bottom: 6px; letter-spacing: 0.2px; }
+        .form-description { text-align: center; color: rgba(234,234,234,0.9); margin-bottom: 20px; font-size: 0.95rem; }
+
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.7); }
+        .input-group input {
+            width: 100%; padding: 12px 15px 12px 48px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); border-radius: 50px; color: #fff; font-size: 0.98rem; outline: none;
+            transition: box-shadow 0.25s ease, transform 0.15s ease, background 0.2s ease, border 0.2s ease;
+        }
+        .input-group input:focus {
+            box-shadow: 0 6px 20px rgba(110,142,251,0.12); transform: translateY(-2px);
+            background: rgba(255,255,255,0.08); border-color: rgba(110,142,251,0.35);
+        }
+        .eye-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); cursor: pointer; color: rgba(255,255,255,0.9); }
+
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 50px; background: #fff; color: #6e8efb; font-size: 1.05rem; font-weight: 700; cursor: pointer; margin-top: 6px; box-shadow: 0 6px 18px rgba(0,0,0,0.18); transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .btn:active { transform: translateY(1px) scale(0.997); }
+        .btn:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.24); }
+
+        .admin-btn { margin-top: 12px; background: transparent; border: 1px solid rgba(255,255,255,0.14); color: #fff; }
+        .admin-btn:hover { transform: translateY(-3px); background: rgba(255,255,255,0.03); }
+
+        .toggle-text { text-align: center; margin-top: 16px; font-size: 0.92rem; }
+        .toggle-text a { color: #fff; font-weight: 700; text-decoration: underline; cursor: pointer; }
+
+        #message { text-align: center; margin-top: 14px; font-weight: 700; min-height: 24px; }
+
+        /* small animated highlight under headings */
+        .underline-anim { display: block; height: 6px; width: 85px; margin: 12px auto 18px; border-radius: 999px; background: linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.12)); box-shadow: 0 6px 20px rgba(110,142,251,0.08); transform-origin: left; animation: sweep 2.6s infinite linear; }
+        @keyframes sweep { 0% { transform: scaleX(0); opacity: 0.4; } 50% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(0); opacity: 0.4; } }
+
+        /* small responsive tweaks */
+        @media (max-width:420px) { .page-container { padding: 28px 18px; } h1 { font-size: 1.5rem; } }
+    </style>
+</head>
+<body>
+
+<div class="bg-layer">
+    <div class="bg-image left"></div>
+    <div class="bg-image right"></div>
+</div>
+
+<div class="particles" aria-hidden="true">
+    <!-- simple SVG dots to add texture -->
+    <svg preserveAspectRatio="none" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+        <g fill="white">
+            <circle cx="80" cy="120" r="1.8" />
+            <circle cx="140" cy="50" r="2.2" />
+            <circle cx="210" cy="320" r="1.6" />
+            <circle cx="420" cy="80" r="1.4" />
+            <circle cx="600" cy="200" r="2.0" />
+            <circle cx="720" cy="500" r="1.2" />
+            <circle cx="520" cy="420" r="1.6" />
+            <circle cx="300" cy="520" r="1.8" />
+        </g>
+    </svg>
+</div>
+
+<div class="page-container">
+    <div class="brand-badge">Map Minds — Online Voting</div>
+    <div class="form-container">
+        <!-- Login Form -->
+        <form id="login-form" class="form">
+            <h1>Voter Login</h1>
+            <span class="underline-anim" aria-hidden="true"></span>
+            <p class="form-description">Enter your credentials to access the voting portal.</p>
+            <div class="input-group">
+                <i class="fas fa-user"></i><input type="text" id="login-username" placeholder="Username" required />
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i><input type="password" id="login-password" placeholder="Password" required />
+                <span class="eye-icon" onclick="togglePassword('login-password')"><i class="fas fa-eye"></i></span>
+            </div>
+            <button type="submit" class="btn">Login</button>
+            <p class="toggle-text">Don’t have an account? <a id="show-register-link">Register Here</a></p>
+        </form>
+        <!-- Registration Form -->
+        <form id="register-form" class="form hidden">
+            <h1>Create Account</h1>
+            <span class="underline-anim" aria-hidden="true"></span>
+            <p class="form-description">Join the digital democracy to vote securely.</p>
+            <div class="input-group">
+                <i class="fas fa-user"></i><input type="text" id="register-username" placeholder="Choose a username" required />
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock"></i><input type="password" id="register-password" placeholder="Choose a password" required />
+                <span class="eye-icon" onclick="togglePassword('register-password')"><i class="fas fa-eye"></i></span>
+            </div>
+            <button type="submit" class="btn">Register</button>
+            <p class="toggle-text">Already registered? <a id="show-login-link">Login Here</a></p>
+        </form>
+    </div>
+    <button id="admin-login-btn" class="btn admin-btn">Admin Login</button>
+    <p id="message"></p>
+</div>
+
+<script>
+    const API_URL = "http://localhost:8080/api";
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const showRegisterLink = document.getElementById('show-register-link');
+    const showLoginLink = document.getElementById('show-login-link');
+    const messageEl = document.getElementById('message');
+
+    // --- REAL LOGIN LOGIC ---
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        messageEl.textContent = '';
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+        if (!username || !password) return showMessage("Please fill in all fields.", "error");
+
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const responseData = await response.json();
+            if (!response.ok) throw new Error(responseData.message || responseData);
+
+            // THE REAL FIX: Save the entire user object from the backend
+            localStorage.setItem("ov_user", JSON.stringify(responseData));
+            window.location.href = "dashboard.html";
+        } catch (error) {
+            showMessage(`🚫 ${error.message}`, "error");
+        }
+    });
+
+    // --- REAL REGISTRATION LOGIC ---
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      messageEl.textContent = '';
+      const username = document.getElementById('register-username').value.trim();
+      const password = document.getElementById('register-password').value.trim();
+      if (!username || !password) return showMessage("Please fill in all fields.", "error");
+
+      try {
+        const response = await fetch(`${API_URL}/register`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const responseText = await response.text();
+        if (!response.ok) throw new Error(responseText);
+
+        showMessage("✅ Registration successful! Please log in.", "success");
+        setTimeout(() => showLoginLink.click(), 2000);
+      } catch(error) {
+        showMessage(`🚫 ${error.message}`, "error");
+      }
+    });
+
+    // --- UI Functions ---
+    showRegisterLink.addEventListener('click', () => {
+        // small animation when switching
+        loginForm.classList.add('hidden');
+        setTimeout(() => { registerForm.classList.remove('hidden'); }, 40);
+    });
+    showLoginLink.addEventListener('click', () => {
+        registerForm.classList.add('hidden');
+        setTimeout(() => { loginForm.classList.remove('hidden'); }, 40);
+    });
+    document.getElementById('admin-login-btn').addEventListener('click', () => { window.location.href = 'admin-login.html'; });
+
+    function showMessage(text, type) {
+        messageEl.textContent = text;
+        messageEl.style.color = type === 'success' ? '#baffc0' : '#ffbaba';
+    }
+
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const icon = field.closest('.input-group').querySelector('.eye-icon i');
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            field.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Admin Dashboard</title>
+
+    <!-- Icons + Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ----------------- GLOBAL ----------------- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ----------------- SIDEBAR ----------------- */
+        .sidebar {
+            width: 270px;
+            padding: 26px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            background: rgba(255,255,255,0.10);
+            border-right: 1px solid rgba(255,255,255,0.18);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 36px rgba(0,0,0,0.25);
+        }
+
+        .brand {
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+        .brand img {
+            width:56px;
+            height:56px;
+            object-fit:cover;
+            border-radius:10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .brand h2 { font-size:1.1rem; color:#fff; font-weight:700; }
+
+        .menu { margin-top:10px; display:flex; flex-direction:column; gap:8px; }
+        .menu a {
+            color: #fff; text-decoration:none; padding:10px 14px; border-radius:10px;
+            display:flex; gap:12px; align-items:center; transition:0.25s; font-weight:600;
+        }
+        .menu a:hover { background: rgba(255,255,255,0.18); transform: translateX(6px); }
+
+        /* ----------------- MAIN CONTENT ----------------- */
+        .main { flex:1; padding:28px; color:#fff; }
+        header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+        header h1 { font-size:1.9rem; font-weight:700; letter-spacing:0.2px; }
+
+        .logout-btn {
+            background: #ff4d67; color:#fff; padding:10px 18px; border:none; border-radius:10px;
+            font-weight:700; cursor:pointer; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        .logout-btn:hover { background:#ff2b48; }
+
+        /* ---------- PANEL CARDS ---------- */
+        .panel-container { margin-top:26px; display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:22px; }
+        .panel {
+            background: rgba(255,255,255,0.10); padding:20px; border-radius:14px;
+            border: 1px solid rgba(255,255,255,0.16); backdrop-filter: blur(8px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.24);
+        }
+        .panel h3 { font-size:1.05rem; margin-bottom:8px; font-weight:700; }
+
+        input {
+            width:100%; padding:12px 14px; border-radius:10px; border:none; outline:none;
+            background: rgba(255,255,255,0.14); color:#fff; margin-top:10px; font-size:0.95rem;
+        }
+        .btn { margin-top:12px; padding:12px; border-radius:10px; border:none; background:#fff; color:#6e8efb; font-weight:700; cursor:pointer; }
+
+        ul { list-style:none; margin-top:12px; padding:0; }
+        li {
+            background: rgba(0,0,0,0.28); padding:12px; border-radius:10px; margin-bottom:10px;
+            display:flex; justify-content:space-between; gap:12px; align-items:center;
+        }
+
+        .meta { color: #e8efff; font-weight:600; font-size:0.95rem; }
+        .meta small { display:block; color:#dce7ff; opacity:0.9; font-weight:500; margin-top:4px; font-size:0.85rem; }
+
+        .status { padding:6px 10px; border-radius:999px; font-size:0.8rem; font-weight:700; }
+        .status-live { background:#2ecc71; color:#062b14; }
+        .status-pending { background:#f39c12; color:#381e00; }
+        .status-finished { background:#95a5a6; color:#0e0e0e; }
+
+        .start-btn { background:#2ecc71; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; }
+        .stop-btn { background:#e74c3c; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; }
+
+        /* message box */
+        #message {
+            display:none; margin-top:18px; padding:12px; border-radius:10px; font-weight:700;
+            background: rgba(0,0,0,0.32);
+        }
+
+        /* responsive tweaks */
+        @media(max-width:880px) {
+            .sidebar { display:none; } body{ padding:0; }
+            .main { padding:18px; }
+        }
+        body {
+    position: relative;
+    background: none;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://images.unsplash.com/photo-1517816428104-797678c7cf0f?auto=format&fit=crop&w=1400&q=80')
+               center/cover no-repeat;
+    z-index: -2;
+    filter: blur(8px) brightness(0.55);
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(110,142,251,0.55), rgba(167,119,227,0.55));
+    z-index: -1;
+}
+
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="brand">
+        <!-- using uploaded local path as image source -->
+        <img src="data:image/png;base64,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" alt="Project image">
+        <div>
+            <h2>Online Voting</h2>
+            <div style="font-size:12px;opacity:0.9;">Admin Console</div>
+        </div>
+    </div>
+
+    <nav class="menu">
+        <a href="#"><i class="fas fa-poll"></i> Elections</a>
+        <a href="#"><i class="fas fa-users"></i> Parties</a>
+        <a href="#"><i class="fas fa-user-plus"></i> Candidates</a>
+        <a href="#"><i class="fas fa-chart-line"></i> Results</a>
+    </nav>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+    <header>
+        <div>
+            <h1>Admin Dashboard</h1>
+            <div style="opacity:0.9;margin-top:6px;">Create elections, add parties & candidates and manage live voting.</div>
+        </div>
+
+        <div>
+            <button class="logout-btn" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </header>
+
+    <div id="message"></div>
+
+    <div class="panel-container">
+        <!-- Create Election -->
+        <div class="panel">
+            <h3><i class="fas fa-calendar-plus"></i> Create Election</h3>
+            <input id="ename" placeholder="Election name">
+            <button id="createE" class="btn">Create</button>
+        </div>
+
+        <!-- Add Party -->
+        <div class="panel">
+            <h3><i class="fas fa-flag"></i> Add Party</h3>
+            <input id="pname" placeholder="Party name">
+            <button id="addP" class="btn">Add Party</button>
+        </div>
+
+        <!-- Add Candidate -->
+        <div class="panel">
+            <h3><i class="fas fa-user-plus"></i> Add Candidate</h3>
+            <input id="cname" placeholder="Candidate name">
+            <input id="partyid" placeholder="Party ID (see Manage Parties)">
+            <input id="electionid" placeholder="Election ID (see Manage Elections)">
+            <button id="addC" class="btn">Add Candidate</button>
+        </div>
+
+        <!-- Manage Parties -->
+        <div class="panel">
+            <h3><i class="fas fa-list"></i> Manage Parties</h3>
+            <div style="font-size:0.9rem;color:#dce7ff;opacity:0.95;margin-bottom:8px;">Party name (ID shown)</div>
+            <ul id="parties-list">
+                <!-- populated by JS -->
+            </ul>
+        </div>
+
+        <!-- Manage Elections -->
+        <div class="panel">
+            <h3><i class="fas fa-tasks"></i> Manage Elections</h3>
+            <div style="font-size:0.9rem;color:#dce7ff;opacity:0.95;margin-bottom:8px;">Election name (ID shown) — start/stop control</div>
+            <ul id="elections-list">
+                <!-- populated by JS -->
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // API base: adjust if your admin endpoints are different
+    const API_URL = "http://localhost:8080/api/admin";
+
+    // logout clears any client-side admin flag and redirects to admin login
+    function logoutAdmin(){
+        try { localStorage.removeItem('ov_user'); localStorage.removeItem('adminLoggedIn'); } catch(e){}
+        window.location.href = 'admin-login.html';
+    }
+
+    // DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('createE').addEventListener('click', createElection);
+        document.getElementById('addP').addEventListener('click', addParty);
+        document.getElementById('addC').addEventListener('click', addCandidate);
+        loadAllParties();
+        loadAllElections();
+    });
+
+    async function createElection(){
+        const name = document.getElementById('ename').value.trim();
+        if(!name) return showMessage('Please enter an election name', true);
+        await api('/elections', { name }, 'Election created', { reloadElections:true });
+        document.getElementById('ename').value = '';
+    }
+
+    async function addParty(){
+        const name = document.getElementById('pname').value.trim();
+        if(!name) return showMessage('Please enter a party name', true);
+        await api('/parties', { name }, 'Party added', { reloadParties:true });
+        document.getElementById('pname').value = '';
+    }
+
+    async function addCandidate(){
+        const name = document.getElementById('cname').value.trim();
+        const partyId = document.getElementById('partyid').value.trim();
+        const electionId = document.getElementById('electionid').value.trim();
+        if(!name || !partyId || !electionId) return showMessage('Fill candidate, party ID and election ID', true);
+        await api('/candidates', { name, partyId, electionId }, 'Candidate added', {});
+        document.getElementById('cname').value=''; document.getElementById('partyid').value=''; document.getElementById('electionid').value='';
+    }
+
+    async function loadAllParties(){
+        const list = document.getElementById('parties-list');
+        list.innerHTML = '<li>Loading parties...</li>';
+        const parties = await api('/parties', null, null, {}, 'GET');
+        list.innerHTML = '';
+        if(!parties || parties.length === 0){ list.innerHTML = '<li>No parties created yet.</li>'; return; }
+        parties.forEach(p => {
+            // property names depend on your backend; adapt if needed
+            // I use p.partyName here because earlier code used that property. If your backend returns "name", change accordingly.
+            const displayName = p.partyName || p.name || 'Unnamed Party';
+            const id = p.id ?? p.partyId ?? '';
+            const li = document.createElement('li');
+            li.innerHTML = `<div class="meta">${displayName} <small>ID: ${id}</small></div>`;
+            list.appendChild(li);
+        });
+    }
+
+    async function loadAllElections(){
+        const list = document.getElementById('elections-list');
+        list.innerHTML = '<li>Loading elections...</li>';
+        const elections = await api('/elections', null, null, {}, 'GET');
+        list.innerHTML = '';
+        if(!elections || elections.length === 0){ list.innerHTML = '<li>No elections found.</li>'; return; }
+
+        elections.forEach(e => {
+            const id = e.id ?? e.electionId ?? '';
+            const name = e.name || e.electionName || 'Unnamed Election';
+            const live = !!e.live;
+            const li = document.createElement('li');
+
+            const statusCls = live ? 'status-live' : 'status-pending';
+            const statusTxt = live ? 'Live' : 'Pending';
+            const actionBtn = live ?
+                `<button class="stop-btn" onclick="stopElection(${id})">Stop</button>` :
+                `<button class="start-btn" onclick="startElection(${id})">Start</button>`;
+
+            li.innerHTML = `
+                <div style="text-align:left">
+                    <div class="meta">${name} <small>ID: ${id}</small></div>
+                </div>
+                <div style="display:flex;gap:10px;align-items:center">
+                    <span class="status ${statusCls}">${statusTxt}</span>
+                    ${actionBtn}
+                </div>
+            `;
+            list.appendChild(li);
+        });
+    }
+
+    async function startElection(id){
+        if(!confirm('Start this election (will become live)?')) return;
+        await api(`/elections/${id}/start`, null, 'Election started', { reloadElections:true }, 'PUT');
+    }
+    async function stopElection(id){
+        if(!confirm('Stop this election?')) return;
+        await api(`/elections/${id}/stop`, null, 'Election stopped', { reloadElections:true }, 'PUT');
+    }
+
+    // Generic API helper. Change API_URL if endpoints differ.
+    async function api(endpoint, body=null, successMsg=null, reload={}, method='POST'){
+        try {
+            const res = await fetch(API_URL + endpoint, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                ...(method !== 'GET' && body ? { body: JSON.stringify(body) } : {})
+            });
+            // try parse JSON (some endpoints might return empty body)
+            let data = null;
+            const contentType = res.headers.get('content-type') || '';
+            if(contentType.includes('application/json')) data = await res.json();
+            if(!res.ok){
+                const errMsg = data?.message || (typeof data === 'string' ? data : res.statusText);
+                throw new Error(errMsg || 'Request failed');
+            }
+            if(successMsg) showMessage(successMsg, false);
+            if(reload.reloadParties) loadAllParties();
+            if(reload.reloadElections) loadAllElections();
+            return data;
+        } catch (err) {
+            showMessage(err.message || 'Network error', true);
+            console.error(err);
+            return null;
+        }
+    }
+
+    function showMessage(msg, isError=false){
+        const el = document.getElementById('message');
+        el.style.display = 'block';
+        el.style.background = isError ? 'rgba(231,76,60,0.18)' : 'rgba(46,204,113,0.12)';
+        el.textContent = (isError ? 'Error: ' : '') + msg;
+        setTimeout(()=> el.style.display='none', 4200);
+    }
+</script>
+
+</body>
+</html>
