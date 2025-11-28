@@ -23,4 +23,4 @@ HOW TO RUN
 5. Open browser and go to http://localhost:8080
 
 AUTHOR
-Your Name
+Ayush Raj
